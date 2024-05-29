@@ -245,3 +245,34 @@ async def mission_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn.commit()
 
     await query.edit_message_text(f"💼 Вы отправили отряд на миссию: ✨{mission['name']}✨. 🌒 Время завершения: ⌛️ {end_time.strftime('%Y-%m-%d %H:%M:%S')} ⌛️.")
+
+async def bet_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    buttons = [
+        [InlineKeyboardButton("50 💎", callback_data="bet_50")],
+        [InlineKeyboardButton("100 💎", callback_data="bet_100")],
+        [InlineKeyboardButton("250 💎", callback_data="bet_250")]
+    ]
+    keyboard = InlineKeyboardMarkup(buttons)
+    await query.edit_message_text("Выберите вашу ставку:", reply_markup=keyboard)
+
+async def play_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    user_id = query.from_user.id
+    bet_amount = int(query.data.split('_')[1])
+
+    current_balance = await get_balance(user_id)
+    if current_balance < bet_amount:
+        await query.edit_message_text("Недостаточно Камней душ для этой ставки.")
+        return
+
+    outcome = random.choice(["win", "lose"])
+    if outcome == "win":
+        reward = bet_amount * 2
+        new_balance = await update_balance(user_id, reward)
+        await query.edit_message_text(f"Поздравляем! Вы выиграли {reward} Камней душ. Ваш новый баланс: {new_balance}💎.")
+    else:
+        new_balance = await reduce_balance(user_id, bet_amount)
+        await query.edit_message_text(f"Вы проиграли {bet_amount} Камней душ. Ваш новый баланс: {new_balance}💎.")
