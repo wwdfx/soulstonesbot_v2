@@ -19,5 +19,8 @@ ENV DATABASE_USER=koyeb-adm
 ENV DATABASE_PASSWORD=WCAFr1R0muaZ
 ENV DATABASE_NAME=koyebdb
 
+# Expose the port (if necessary, though not needed for a Telegram bot)
+EXPOSE 8080
+
 # Run the bot
 CMD ["python", "bot.py"]
