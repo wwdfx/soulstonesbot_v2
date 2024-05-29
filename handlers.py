@@ -47,6 +47,10 @@ async def profile_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def balance_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_id = query.from_user.id
     user_mention = query.from_user.username or query.from_user.first_name
     mention_text = f"@{user_mention}" if query.from_user.username else user_mention
@@ -133,15 +137,8 @@ readings = [
     "Редкий демон потребует твоего немедленного внимания.",
     "Старый друг вернется с удивительными новостями.",
     "Видение от ангела Разиэля направит твой путь.",
-    "Сила Смертной Чаши будет ощущаться особенно сильно сегодня.",
-    "Путешествие в Город Костей раскроет скрытые знания.",
-    "Звук рога Сумеречных охотников сигнализирует важное событие.",
-    "Таинственная руна появится в твоих снах.",
-    "Встреча с Двором Сумерек изменит твою судьбу.",
-    "Тайна Инквизитора будет раскрыта.",
-    "Скрытый вход в Институт приведет к новому открытию.",
-    "Неожиданный подарок от мага удивит тебя.",
-    "Тайное послание от фейри приведет к интересной находке.",
+    "Сила Смертной Чаши будет ощущаться особенно сильно.",
+    "Столкновение с фейри приведет к интересной находке.",
     "Исследование старого Института раскроет древнюю реликвию."
 ]
 
@@ -188,7 +185,8 @@ async def rps_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @reconnect_db
 async def missions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.callback_query.from_user.id
+    query = update.callback_query
+    user_id = query.from_user.id
     today = datetime.now().date()
 
     cur.execute('SELECT attempts FROM mission_attempts WHERE user_id = %s AND date = %s', (user_id, today))
@@ -196,7 +194,7 @@ async def missions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     attempts = result['attempts'] if result else 0
 
     if attempts >= 3:
-        await update.callback_query.edit_message_text("✨ Вы уже отправили 3 отряда на миссии сегодня. ⌛️ Повторите попытку завтра.")
+        await query.edit_message_text("✨ Вы уже отправили 3 отряда на миссии сегодня. ⌛️ Повторите попытку завтра.")
         return
 
     missions = await generate_missions()
@@ -208,7 +206,7 @@ async def missions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for mission in missions
     ]
     keyboard = InlineKeyboardMarkup.from_column(buttons)
-    await update.callback_query.edit_message_text("⚔️ Выберите миссию для отправки отряда:", reply_markup=keyboard)
+    await query.edit_message_text("⚔️ Выберите миссию для отправки отряда:", reply_markup=keyboard)
 
 @reconnect_db
 async def mission_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
