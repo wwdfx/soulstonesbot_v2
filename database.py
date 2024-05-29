@@ -1,3 +1,5 @@
+# database.py
+
 import psycopg2
 from psycopg2.extras import DictCursor
 
@@ -43,14 +45,7 @@ cur.execute('''
 cur.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id BIGINT PRIMARY KEY,
-        role TEXT NOT NULL DEFAULT 'user'
-    )
-''')
-
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS last_reading (
-        user_id BIGINT PRIMARY KEY,
-        last_request TIMESTAMP
+        symbols_count BIGINT DEFAULT 0
     )
 ''')
 
@@ -63,9 +58,9 @@ cur.execute('''
 ''')
 
 cur.execute('''
-    CREATE TABLE IF NOT EXISTS last_game (
+    CREATE TABLE IF NOT EXISTS last_reading (
         user_id BIGINT PRIMARY KEY,
-        last_play TIMESTAMP
+        last_request TIMESTAMP
     )
 ''')
 
@@ -73,10 +68,8 @@ cur.execute('''
     CREATE TABLE IF NOT EXISTS missions (
         id SERIAL PRIMARY KEY,
         name TEXT,
-        rarity TEXT,
-        appearing_rate INTEGER,
-        length INTEGER,
-        reward INTEGER
+        reward INTEGER,
+        duration INTERVAL
     )
 ''')
 
@@ -99,22 +92,3 @@ cur.execute('''
         PRIMARY KEY (user_id, date)
     )
 ''')
-
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS user_symbols (
-        user_id BIGINT PRIMARY KEY,
-        symbols_count BIGINT DEFAULT 0
-    )
-''')
-
-# Populate the missions table with 25 different missions
-missions = [
-    ('Патрулировать нижний Бруклин', 'Сложность: 1', 50, 2, 150),
-    ('Охранять мага во время ритуала', 'Сложность: 2', 25, 3, 225),
-    ('Зачистить нелегальное логово вампиров', 'Сложность: 3', 15, 4, 300),
-    ('Уничтожить улей демонов-шерстней', 'Сложность: 4', 7, 6, 450),
-    ('Уничтожить высшего демона', 'Сложность: 5', 3, 8, 600),
-]
-
-cur.executemany('INSERT INTO missions (name, rarity, appearing_rate, length, reward) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING', missions)
-conn.commit()

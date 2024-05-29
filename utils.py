@@ -1,3 +1,5 @@
+# utils.py
+
 import random
 from datetime import datetime, timedelta
 from database import cur, conn, reconnect_db
@@ -22,7 +24,7 @@ async def reduce_balance(user_id, amount):
     return new_balance
 
 async def get_user_symbols(user_id):
-    cur.execute('SELECT symbols_count FROM user_symbols WHERE user_id = %s', (user_id,))
+    cur.execute('SELECT symbols_count FROM users WHERE user_id = %s', (user_id,))
     result = cur.fetchone()
     return result['symbols_count'] if result else 0
 
@@ -40,10 +42,10 @@ async def get_user_rank(user_id):
         return "Лидер миссий Института", 200
     elif symbols_count < 400000:
         return "Лидер Института", 250
-    elif symbols_count < 250000:
+    elif symbols_count < 750000:
         return "Кандидат в Инквизиторы", 300
     else:
-        return "Лидер Института", 400
+        return "Инквизитор", 400
 
 @reconnect_db
 async def can_request_reading(user_id):
