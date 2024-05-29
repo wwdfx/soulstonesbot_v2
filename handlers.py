@@ -1,14 +1,9 @@
-PROMOTE_USER_ID = range(1)
-
 import random
 from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes, ConversationHandler
+from telegram.ext import ContextTypes
 from database import cur, conn, reconnect_db
-from models import set_user_role
 from utils import generate_missions, get_balance, update_balance, reduce_balance, get_user_rank, get_user_symbols, can_request_reading
-
-PROMOTE_USER_ID = range(1)
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message:
@@ -161,7 +156,7 @@ async def reading_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reading = random.choice(readings)
     await query.edit_message_text(f"🔮 Ваше предсказание от Магнуса: {reading}")
 
-async def rock_paper_scissors(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def rockpaperscissors_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     buttons = [
         [InlineKeyboardButton("Камень", callback_data="rps_rock")],
@@ -190,26 +185,6 @@ async def rps_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await reduce_balance(query.from_user.id, 25)
 
     await query.edit_message_text(f"Вы выбрали {user_choice}, бот выбрал {bot_choice}. {outcome}")
-
-async def promote_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Введите ID пользователя, которого хотите повысить до администратора:")
-    return PROMOTE_USER_ID
-
-@reconnect_db
-async def receive_user_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        target_user_id = int(update.message.text)
-    except ValueError:
-        await update.message.reply_text("Пожалуйста, введите корректное число.")
-        return PROMOTE_USER_ID
-
-    await set_user_role(target_user_id, 'admin')
-    await update.message.reply_text(f"Пользователь {target_user_id} повышен до администратора.")
-    return ConversationHandler.END
-
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Отменено.")
-    return ConversationHandler.END
 
 @reconnect_db
 async def missions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
