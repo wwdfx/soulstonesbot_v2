@@ -60,6 +60,10 @@ async def balance_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @reconnect_db
 async def checkin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_id = query.from_user.id
     today = datetime.now()
     cur.execute('SELECT streak, last_checkin FROM checkin_streak WHERE user_id = %s', (user_id,))
@@ -144,6 +148,10 @@ readings = [
 
 async def reading_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_id = query.from_user.id
 
     if not await can_request_reading(user_id):
@@ -155,6 +163,10 @@ async def reading_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def rockpaperscissors_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     buttons = [
         [InlineKeyboardButton("Камень", callback_data="rps_rock")],
         [InlineKeyboardButton("Ножницы", callback_data="rps_scissors")],
@@ -165,6 +177,10 @@ async def rockpaperscissors_command(update: Update, context: ContextTypes.DEFAUL
 
 async def rps_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_choice = query.data.split('_')[1]
     choices = ['rock', 'scissors', 'paper']
     bot_choice = random.choice(choices)
@@ -186,6 +202,10 @@ async def rps_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @reconnect_db
 async def missions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_id = query.from_user.id
     today = datetime.now().date()
 
@@ -211,7 +231,10 @@ async def missions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @reconnect_db
 async def mission_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_id = query.from_user.id
     mission_id = int(query.data.split('_')[1])
 
@@ -246,7 +269,9 @@ async def mission_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def bet_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
 
     buttons = [
         [InlineKeyboardButton("50 💎", callback_data="bet_50")],
@@ -258,6 +283,10 @@ async def bet_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def play_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if query is None or query.from_user is None:
+        await update.message.reply_text("Ошибка: этот запрос не поддерживается.")
+        return
+
     user_id = query.from_user.id
     bet_amount = int(query.data.split('_')[1])
 
